@@ -95,7 +95,9 @@ void BuildDepotVehicleList(VehicleType type, TileIndex tile, VehicleList *engine
 				break;
 		}
 
-		engines->push_back(v);
+		if (!v->IsMovingFront()) continue;
+
+		engines->push_back(v->First());
 	}
 
 	/* Ensure the lists are not wasting too much space. If the lists are fresh

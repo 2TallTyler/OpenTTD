@@ -2794,7 +2794,8 @@ void CcStartStopVehicle(Commands cmd, const CommandCost &result, VehicleID veh_i
 	if (v == nullptr || !v->IsPrimaryVehicle() || v->owner != _local_company) return;
 
 	StringID msg = (v->vehstatus & VS_STOPPED) ? STR_VEHICLE_COMMAND_STOPPED : STR_VEHICLE_COMMAND_STARTED;
-	Point pt = RemapCoords(v->x_pos, v->y_pos, v->z_pos);
+	Vehicle *moving_front = v->GetMovingFront();
+	Point pt = RemapCoords(moving_front->x_pos, moving_front->y_pos, moving_front->z_pos);
 	AddTextEffect(msg, pt.x, pt.y, DAY_TICKS, TE_RISING);
 }
 
@@ -3123,7 +3124,8 @@ public:
 						/* main window 'follows' vehicle */
 						mainwindow->viewport->follow_vehicle = v->index;
 					} else {
-						ScrollMainWindowTo(v->x_pos, v->y_pos, v->z_pos);
+						const Vehicle* moving_front = v->GetMovingFront();
+						ScrollMainWindowTo(moving_front->x_pos, moving_front->y_pos, moving_front->z_pos);
 					}
 				}
 				break;
@@ -3344,7 +3346,8 @@ void StopGlobalFollowVehicle(const Vehicle *v)
 {
 	Window *w = FindWindowById(WC_MAIN_WINDOW, 0);
 	if (w != nullptr && w->viewport->follow_vehicle == v->index) {
-		ScrollMainWindowTo(v->x_pos, v->y_pos, v->z_pos, true); // lock the main view on the vehicle's last position
+		const Vehicle *moving_fonrt = v->GetMovingFront();
+		ScrollMainWindowTo(moving_fonrt->x_pos, moving_fonrt->y_pos, moving_fonrt->z_pos, true); // lock the main view on the vehicle's last position
 		w->viewport->follow_vehicle = INVALID_VEHICLE;
 	}
 }

@@ -1196,16 +1196,17 @@ CargoPayment::~CargoPayment()
 	SubtractMoneyFromCompany(CommandCost(this->front->GetExpenseType(true), -this->route_profit));
 	this->front->profit_this_year += (this->visual_profit + this->visual_transfer) << 8;
 
+	Vehicle* moving_front = this->front->GetMovingFront();
 	if (this->route_profit != 0 && IsLocalCompany() && !PlayVehicleSound(this->front, VSE_LOAD_UNLOAD)) {
 		SndPlayVehicleFx(SND_14_CASHTILL, this->front);
 	}
 
 	if (this->visual_transfer != 0) {
-		ShowFeederIncomeAnimation(this->front->x_pos, this->front->y_pos,
-				this->front->z_pos, this->visual_transfer, -this->visual_profit);
+		ShowFeederIncomeAnimation(moving_front->x_pos, moving_front->y_pos,
+				moving_front->z_pos, this->visual_transfer, -this->visual_profit);
 	} else {
-		ShowCostOrIncomeAnimation(this->front->x_pos, this->front->y_pos,
-				this->front->z_pos, -this->visual_profit);
+		ShowCostOrIncomeAnimation(moving_front->x_pos, moving_front->y_pos,
+				moving_front->z_pos, -this->visual_profit);
 	}
 
 	cur_company.Restore();
@@ -1634,7 +1635,8 @@ static void LoadUnloadVehicle(Vehicle *front)
 	/* We have not waited enough time till the next round of loading/unloading */
 	if (front->load_unload_ticks != 0) return;
 
-	if (front->type == VEH_TRAIN && (!IsTileType(front->tile, MP_STATION) || GetStationIndex(front->tile) != st->index)) {
+	Vehicle* moving_front = front->GetMovingFront();
+	if (front->type == VEH_TRAIN && (!IsTileType(front->tile, MP_STATION) || GetStationIndex(moving_front->tile) != st->index)) {
 		/* The train reversed in the station. Take the "easy" way
 		 * out and let the train just leave as it always did. */
 		SetBit(front->vehicle_flags, VF_LOADING_FINISHED);
@@ -1831,8 +1833,8 @@ static void LoadUnloadVehicle(Vehicle *front)
 
 	if (anything_loaded || anything_unloaded) {
 		if (front->type == VEH_TRAIN) {
-			TriggerStationRandomisation(st, front->tile, SRT_TRAIN_LOADS);
-			TriggerStationAnimation(st, front->tile, SAT_TRAIN_LOADS);
+			TriggerStationRandomisation(st, moving_front->tile, SRT_TRAIN_LOADS);
+			TriggerStationAnimation(st, moving_front->tile, SAT_TRAIN_LOADS);
 		}
 	}
 
@@ -1893,8 +1895,9 @@ static void LoadUnloadVehicle(Vehicle *front)
 	if (_game_mode != GM_MENU && (_settings_client.gui.loading_indicators > (uint)(front->owner != _local_company && _local_company != COMPANY_SPECTATOR))) {
 		StringID percent_up_down = STR_NULL;
 		int percent = CalcPercentVehicleFilled(front, &percent_up_down);
+		Vehicle *moving_front = front->GetMovingFront();
 		if (front->fill_percent_te_id == INVALID_TE_ID) {
-			front->fill_percent_te_id = ShowFillingPercent(front->x_pos, front->y_pos, front->z_pos + 20, percent, percent_up_down);
+			front->fill_percent_te_id = ShowFillingPercent(moving_front->x_pos, moving_front->y_pos, moving_front->z_pos + 20, percent, percent_up_down);
 		} else {
 			UpdateFillingPercent(front->fill_percent_te_id, percent, percent_up_down);
 		}

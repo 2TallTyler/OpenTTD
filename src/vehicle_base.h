@@ -53,6 +53,7 @@ enum VehicleFlags {
 	VF_PATHFINDER_LOST,         ///< Vehicle's pathfinder is lost.
 	VF_SERVINT_IS_CUSTOM,       ///< Service interval is custom.
 	VF_SERVINT_IS_PERCENT,      ///< Service interval is percent.
+	VF_DRIVING_BACKWARDS,       ///< Vehicle is driving backwards.
 };
 
 /** Bit numbers used to indicate which of the #NewGRFCache values are valid. */
@@ -395,6 +396,15 @@ public:
 	 */
 	virtual void UpdateDeltaXY() {}
 
+	bool IsDrivingBackwards() const { return HasBit(this->First()->vehicle_flags, VF_DRIVING_BACKWARDS); }
+	bool IsMovingFront() const { return this->First()->IsPrimaryVehicle() && (this->IsDrivingBackwards() ? this->Next() : this->Previous()) == NULL; }
+	Vehicle *GetMovingFront() const { return this->IsDrivingBackwards() ? this->Last() : this->First(); }
+	Vehicle *GetMovingBack() const { return this->IsDrivingBackwards() ? this->First() : this->Last(); }
+	Vehicle *GetMovingNext() const { return this->IsDrivingBackwards() ? this->Previous() : this->Next(); }
+	Vehicle *GetMovingPrev() const { return this->IsDrivingBackwards() ? this->Next() : this->Previous(); }
+	Direction GetMovingDirection() const { return this->IsDrivingBackwards() ? ReverseDir(this->direction) : this->direction; }
+	void SetMovingDirection(Direction d) { this->direction = this->IsDrivingBackwards() ? ReverseDir(d) : d; }
+
 	/**
 	 * Determines the effective direction-specific vehicle movement speed.
 	 *
@@ -410,7 +420,7 @@ public:
 	 */
 	inline uint GetOldAdvanceSpeed(uint speed)
 	{
-		return (this->direction & 1) ? speed : speed * 3 / 4;
+		return (this->GetMovingDirection() & 1) ? speed : speed * 3 / 4;
 	}
 
 	/**
@@ -439,7 +449,7 @@ public:
 	 */
 	inline uint GetAdvanceDistance()
 	{
-		return (this->direction & 1) ? TILE_AXIAL_DISTANCE : TILE_CORNER_DISTANCE * 2;
+		return (this->GetMovingDirection() & 1) ? TILE_AXIAL_DISTANCE : TILE_CORNER_DISTANCE * 2;
 	}
 
 	/**
@@ -626,20 +636,9 @@ public:
 	 * Get the last vehicle of this vehicle chain.
 	 * @return the last vehicle of the chain.
 	 */
-	inline Vehicle *Last()
+	inline Vehicle *Last() const
 	{
-		Vehicle *v = this;
-		while (v->Next() != nullptr) v = v->Next();
-		return v;
-	}
-
-	/**
-	 * Get the last vehicle of this vehicle chain.
-	 * @return the last vehicle of the chain.
-	 */
-	inline const Vehicle *Last() const
-	{
-		const Vehicle *v = this;
+		Vehicle *v = const_cast<Vehicle*>(this);
 		while (v->Next() != nullptr) v = v->Next();
 		return v;
 	}
@@ -1072,6 +1071,11 @@ struct SpecializedVehicle : public Vehicle {
 	{
 		this->sprite_cache.sprite_seq.count = 1;
 	}
+
+	inline T *GetMovingFront() const { return (T *)this->Vehicle::GetMovingFront(); }
+	inline T *GetMovingBack() const { return (T *)this->Vehicle::GetMovingBack(); }
+	inline T *GetMovingNext() const { return (T *)this->Vehicle::GetMovingNext(); }
+	inline T *GetMovingPrev() const { return (T *)this->Vehicle::GetMovingPrev(); }
 
 	/**
 	 * Get the first vehicle in the chain

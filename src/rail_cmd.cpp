@@ -1170,9 +1170,10 @@ CommandCost CmdBuildSingleSignal(DoCommandFlag flags, TileIndex tile, Track trac
 		AddTrackToSignalBuffer(tile, track, _current_company);
 		YapfNotifyTrackLayoutChange(tile, track);
 		if (v != nullptr && v->track != TRACK_BIT_DEPOT) {
+			Train* moving_front = v->GetMovingFront();
 			/* Extend the train's path if it's not stopped or loading, or not at a safe position. */
 			if (!(((v->vehstatus & VS_STOPPED) && v->cur_speed == 0) || v->current_order.IsType(OT_LOADING)) ||
-					!IsSafeWaitingPosition(v, v->tile, v->GetVehicleTrackdir(), true, _settings_game.pf.forbid_90_deg)) {
+					!IsSafeWaitingPosition(v, moving_front->tile, moving_front->GetVehicleTrackdir(), true, _settings_game.pf.forbid_90_deg)) {
 				TryPathReserve(v, true);
 			}
 		}
@@ -2922,27 +2923,27 @@ static VehicleEnterTileStatus VehicleEnter_Track(Vehicle *u, TileIndex tile, int
 	/* This routine applies only to trains in depot tiles. */
 	if (u->type != VEH_TRAIN || !IsRailDepotTile(tile)) return VETSB_CONTINUE;
 
+	Train* v = Train::From(u);
+
 	/* Depot direction. */
 	DiagDirection dir = GetRailDepotDirection(tile);
+
+	/* Calculate the point where the following wagon should be activated. */
+	int length = v->CalcNextVehicleOffset();
+
+	byte fract_coord_leave =
+		((_fractcoords_enter[dir] & 0x0F) + // x
+			(length + 1) * _deltacoord_leaveoffset[dir]) +
+		(((_fractcoords_enter[dir] >> 4) +  // y
+			((length + 1) * _deltacoord_leaveoffset[dir + 4])) << 4);
 
 	byte fract_coord = (x & 0xF) + ((y & 0xF) << 4);
 
 	/* Make sure a train is not entering the tile from behind. */
 	if (_fractcoords_behind[dir] == fract_coord) return VETSB_CANNOT_ENTER;
 
-	Train *v = Train::From(u);
-
 	/* Leaving depot? */
 	if (v->direction == DiagDirToDir(dir)) {
-		/* Calculate the point where the following wagon should be activated. */
-		int length = v->CalcNextVehicleOffset();
-
-		byte fract_coord_leave =
-			((_fractcoords_enter[dir] & 0x0F) + // x
-				(length + 1) * _deltacoord_leaveoffset[dir]) +
-			(((_fractcoords_enter[dir] >> 4) +  // y
-				((length + 1) * _deltacoord_leaveoffset[dir + 4])) << 4);
-
 		if (fract_coord_leave == fract_coord) {
 			/* Leave the depot. */
 			if ((v = v->Next()) != nullptr) {
@@ -2951,16 +2952,34 @@ static VehicleEnterTileStatus VehicleEnter_Track(Vehicle *u, TileIndex tile, int
 			}
 		}
 	} else if (_fractcoords_enter[dir] == fract_coord) {
-		/* Entering depot. */
-		assert(DiagDirToDir(ReverseDiagDir(dir)) == v->direction);
-		v->track = TRACK_BIT_DEPOT,
-		v->vehstatus |= VS_HIDDEN;
-		v->direction = ReverseDir(v->direction);
-		if (v->Next() == nullptr) VehicleEnterDepot(v->First());
-		v->tile = tile;
+		if (DiagDirToDir(ReverseDiagDir(dir)) == v->GetMovingDirection()) {
+			/* enter the depot */
+			v->track = TRACK_BIT_DEPOT,
+			v->vehstatus |= VS_HIDDEN; // hide it
+			if (v->GetMovingNext() == nullptr) {
+				Train *consist = v->First();
+				if (HasBit(consist->vehicle_flags, VF_DRIVING_BACKWARDS)) {
+					ClrBit(consist->vehicle_flags, VF_DRIVING_BACKWARDS);
+				} else {
+					for (Train *u = consist; u != nullptr; u = u->Next()) {
+						u->direction = ReverseDir(u->direction);
+					}
+				}
+				VehicleEnterDepot(consist);
+			}
+			v->tile = tile;
 
-		InvalidateWindowData(WC_VEHICLE_DEPOT, v->tile);
-		return VETSB_ENTERED_WORMHOLE;
+			InvalidateWindowData(WC_VEHICLE_DEPOT, v->tile);
+			return VETSB_ENTERED_WORMHOLE;
+		}
+	} else if (fract_coord_leave == fract_coord) {
+		if (DiagDirToDir(dir) == v->GetMovingDirection()) {
+			/* leave the depot? */
+			if ((v = v->GetMovingNext()) != nullptr) {
+				v->vehstatus &= ~VS_HIDDEN;
+				v->track = (DiagDirToAxis(dir) == AXIS_X ? TRACK_BIT_X : TRACK_BIT_Y);
+			}
+		}
 	}
 
 	return VETSB_CONTINUE;

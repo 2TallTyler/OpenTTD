@@ -2113,11 +2113,12 @@ bool ProcessOrders(Vehicle *v)
 	 * it won't hit the point in code where may_reverse is checked)
 	 */
 	bool may_reverse = v->current_order.IsType(OT_NOTHING);
+	Vehicle *moving_front = v->GetMovingFront();
 
 	/* Check if we've reached a 'via' destination. */
 	if (((v->current_order.IsType(OT_GOTO_STATION) && (v->current_order.GetNonStopType() & ONSF_NO_STOP_AT_DESTINATION_STATION)) || v->current_order.IsType(OT_GOTO_WAYPOINT)) &&
-			IsTileType(v->tile, MP_STATION) &&
-			v->current_order.GetDestination() == GetStationIndex(v->tile)) {
+			IsTileType(moving_front->tile, MP_STATION) &&
+			v->current_order.GetDestination() == GetStationIndex(moving_front->tile)) {
 		v->DeleteUnreachedImplicitOrders();
 		/* We set the last visited station here because we do not want
 		 * the train to stop at this 'via' station if the next order
