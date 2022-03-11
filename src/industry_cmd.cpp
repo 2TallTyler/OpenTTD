@@ -409,8 +409,9 @@ static Foundation GetFoundation_Industry(TileIndex tile, Slope tileh)
 static void AddAcceptedCargo_Industry(TileIndex tile, CargoArray &acceptance, CargoTypes *always_accepted)
 {
 	IndustryGfx gfx = GetIndustryGfx(tile);
-	const IndustryTileSpec *itspec = GetIndustryTileSpec(gfx);
 	const Industry *ind = Industry::GetByTile(tile);
+	const IndustryTileSpec *itspec = GetIndustryTileSpec(gfx);
+	const IndustrySpec *indspec = GetIndustrySpec(ind->type);
 
 	/* Starting point for acceptance */
 	CargoID accepts_cargo[lengthof(itspec->accepts_cargo)];
@@ -418,7 +419,9 @@ static void AddAcceptedCargo_Industry(TileIndex tile, CargoArray &acceptance, Ca
 	MemCpyT(accepts_cargo, itspec->accepts_cargo, lengthof(accepts_cargo));
 	MemCpyT(cargo_acceptance, itspec->acceptance, lengthof(cargo_acceptance));
 
-	if (itspec->special_flags & INDTILE_SPECIAL_ACCEPTS_ALL_CARGO) {
+	/* Non-NewGRF (vanilla) industry tiles accept all cargoes of that industry. */
+	bool is_vanilla_industry = indspec->grf_prop.grffile == nullptr && itspec->grf_prop.grffile == nullptr;
+	if ((itspec->special_flags & INDTILE_SPECIAL_ACCEPTS_ALL_CARGO) || is_vanilla_industry) {
 		/* Copy all accepted cargoes from industry itself */
 		for (uint i = 0; i < lengthof(ind->accepts_cargo); i++) {
 			CargoID *pos = std::find(accepts_cargo, endof(accepts_cargo), ind->accepts_cargo[i]);
