@@ -497,6 +497,12 @@ struct PathfinderSettings {
 	byte   wait_for_pbs_path;                ///< how long to wait for a path reservation.
 	byte   path_backoff_interval;            ///< ticks between checks for a free path.
 
+	bool   yellow_pbs;                       ///< use yellow path signals with extended path reservation
+	uint16_t yellow_speed;                   ///< maximum yellow signal speed
+	uint16_t double_yellow_speed;            ///< maximum double yellow signal speed
+	bool   watch_next_signal;                ///< use color speed limit from next signal, if it's bigger than current
+	bool   slow_down_station;                ///< when entering station, make last pbs green instead of yellow
+
 	NPFSettings  npf;                        ///< pathfinder settings for the new pathfinder
 	YAPFSettings yapf;                       ///< pathfinder settings for the yet another pathfinder
 };

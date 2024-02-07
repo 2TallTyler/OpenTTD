@@ -14,6 +14,7 @@
 #include "../../direction_type.h"
 #include "../../vehicle_type.h"
 #include "../pathfinder_type.h"
+#include "../../pbs.h"
 
 /**
  * Used when user sends road vehicle to the nearest depot or if road vehicle needs servicing using NPF.
@@ -68,9 +69,9 @@ FindDepotData NPFTrainFindNearestDepot(const Train *v, int max_penalty);
  * @param tile Last tile of the current reserved path.
  * @param td   Last trackdir of the current reserved path.
  * @param override_railtype Should all physically compatible railtypes be searched, even if the vehicle can't run on them on its own?
- * @return True if the path could be extended to a safe tile.
+ * @return The PBSTileInfo of the safe tile.
  */
-bool NPFTrainFindNearestSafeTile(const Train *v, TileIndex tile, Trackdir td, bool override_railtype);
+PBSTileInfo NPFTrainFindNearestSafeTile(const Train *v, TileIndex tile, Trackdir td, bool override_railtype);
 
 /**
  * Returns true if it is better to reverse the train before leaving station using NPF.

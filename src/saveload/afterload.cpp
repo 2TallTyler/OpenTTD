@@ -3286,6 +3286,36 @@ bool AfterLoadGame()
 		}
 	}
 
+	if (IsSavegameVersionBefore(SLV_EXTENDED_PATH_SIGNALS)) {
+
+		for (auto t : Map::Iterate()) {
+			if (!IsTileType(t, MP_RAILWAY) || !HasSignals(t)) continue;
+
+			// TODO: Use a lambda for this.
+
+			TrackBits tracks = GetTrackBits(t);
+			Track track = FindFirstTrack(tracks);
+			if (HasSignalOnTrack(t, track)) {
+				if (IsPbsSignal(GetSignalType(t, track))) {
+					Trackdir td = TrackToTrackdir(track);
+					if (!HasSignalOnTrackdir(t, td)) td = ReverseTrackdir(td);
+					SetSignalStateByTrackdir(t, td, GetSignalStates(t) & SignalAlongTrackdir(td) ? SIGNAL_STATE_GREEN : SIGNAL_STATE_RED);
+				}
+			}
+			tracks = KillFirstBit(tracks);
+			if (tracks != TRACK_BIT_NONE) {
+				track = FindFirstTrack(tracks);
+				if (HasSignalOnTrack(t, track)) {
+					if (IsPbsSignal(GetSignalType(t, track))) {
+						Trackdir td = TrackToTrackdir(track);
+						if (!HasSignalOnTrackdir(t, td)) td = ReverseTrackdir(td);
+						SetSignalStateByTrackdir(t, td, GetSignalStates(t) & SignalAlongTrackdir(td) ? SIGNAL_STATE_GREEN : SIGNAL_STATE_RED);
+					}
+				}
+			}
+		}
+	}
+
 	for (Company *c : Company::Iterate()) {
 		UpdateCompanyLiveries(c);
 	}

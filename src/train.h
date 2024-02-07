@@ -58,7 +58,7 @@ byte FreightWagonMult(CargoID cargo);
 
 void CheckTrainsLengths();
 
-void FreeTrainTrackReservation(const Train *v);
+void FreeTrainTrackReservation(const Train *v, TileIndex origin = INVALID_TILE, Trackdir orig_td = INVALID_TRACKDIR);
 bool TryPathReserve(Train *v, bool mark_as_stuck = false, bool first_tile_okay = false);
 
 int GetTrainStopLocation(StationID station_id, TileIndex tile, const Train *v, int *station_ahead, int *station_length);
@@ -99,6 +99,8 @@ struct Train final : public GroundVehicle<Train, VEH_TRAIN> {
 	TrainForceProceeding force_proceed;
 	RailType railtype;
 	RailTypes compatible_railtypes;
+
+	uint16_t max_signal_speed; ///< Maximum allowed speed due to signals.
 
 	/** Ticks waiting in front of a signal, ticks being stuck or a counter for forced proceeding through signals. */
 	uint16_t wait_counter;

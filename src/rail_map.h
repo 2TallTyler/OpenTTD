@@ -439,8 +439,12 @@ inline SignalState GetSignalStateByTrackdir(Tile tile, Trackdir trackdir)
 {
 	assert(IsValidTrackdir(trackdir));
 	assert(HasSignalOnTrack(tile, TrackdirToTrack(trackdir)));
-	return GetSignalStates(tile) & SignalAlongTrackdir(trackdir) ?
-		SIGNAL_STATE_GREEN : SIGNAL_STATE_RED;
+	Track track = TrackdirToTrack(trackdir);
+	if (IsPbsSignal(GetSignalType(tile, track))) {
+		return (SignalState)((GetSignalStates(tile) & SignalOnTrack(track)) >> (SignalOnTrack(track) == 0xC ? 2 : 0));
+	} else {
+		return GetSignalStates(tile) & SignalAlongTrackdir(trackdir) ? SIGNAL_STATE_GREEN : SIGNAL_STATE_RED;
+	}
 }
 
 /**
@@ -448,10 +452,15 @@ inline SignalState GetSignalStateByTrackdir(Tile tile, Trackdir trackdir)
  */
 inline void SetSignalStateByTrackdir(Tile tile, Trackdir trackdir, SignalState state)
 {
-	if (state == SIGNAL_STATE_GREEN) { // set 1
-		SetSignalStates(tile, GetSignalStates(tile) | SignalAlongTrackdir(trackdir));
+	Track track = TrackdirToTrack(trackdir);
+	if (IsPbsSignal(GetSignalType(tile, track))) {
+		SetSignalStates(tile, (GetSignalStates(tile) & ~SignalOnTrack(track)) | (state << (SignalOnTrack(track) == 0xC ? 2 : 0)));
 	} else {
-		SetSignalStates(tile, GetSignalStates(tile) & ~SignalAlongTrackdir(trackdir));
+		if (state == SIGNAL_STATE_GREEN) { // set 1
+			SetSignalStates(tile, GetSignalStates(tile) | SignalAlongTrackdir(trackdir));
+		} else {
+			SetSignalStates(tile, GetSignalStates(tile) & ~SignalAlongTrackdir(trackdir));
+		}
 	}
 }
 

@@ -95,8 +95,8 @@ bool YapfTrainCheckReverse(const Train *v);
  * @param tile Last tile of the current reserved path.
  * @param td   Last trackdir of the current reserved path.
  * @param override_railtype Should all physically compatible railtypes be searched, even if the vehicle can't run on them on its own?
- * @return True if the path could be extended to a safe tile.
+ * @return The PBSTileInfo of the safe tile.
  */
-bool YapfTrainFindNearestSafeTile(const Train *v, TileIndex tile, Trackdir td, bool override_railtype);
+PBSTileInfo YapfTrainFindNearestSafeTile(const Train *v, TileIndex tile, Trackdir td, bool override_railtype);
 
 #endif /* YAPF_H */

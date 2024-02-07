@@ -467,6 +467,18 @@ void AfterLoadVehicles(bool part_of_load)
 		}
 	}
 
+	/* set non zero max signal speed */
+	if (part_of_load && IsSavegameVersionBefore(SLV_EXTENDED_PATH_SIGNALS)) {
+		for (Vehicle *v : Vehicle::Iterate()) {
+			if (v->type == VEH_TRAIN) {
+				Train *t = Train::From(v);
+				if (t->IsFrontEngine()) {
+					t->max_signal_speed = UINT16_MAX;
+				}
+			}
+		}
+	}
+
 	for (Vehicle *v : Vehicle::Iterate()) {
 		switch (v->type) {
 			case VEH_ROAD:
@@ -777,6 +789,7 @@ public:
 		 SLE_CONDVAR(Train, flags,               SLE_FILE_U8  | SLE_VAR_U16,   SLV_2,  SLV_100),
 		 SLE_CONDVAR(Train, flags,               SLE_UINT16,                 SLV_100, SL_MAX_VERSION),
 		 SLE_CONDVAR(Train, wait_counter,        SLE_UINT16,                 SLV_136, SL_MAX_VERSION),
+		 SLE_CONDVAR(Train, max_signal_speed,    SLE_UINT16,                 SLV_EXTENDED_PATH_SIGNALS, SL_MAX_VERSION),
 		 SLE_CONDVAR(Train, gv_flags,            SLE_UINT16,                 SLV_139, SL_MAX_VERSION),
 	};
 	inline const static SaveLoadCompatTable compat_description = _vehicle_train_sl_compat;

@@ -1188,7 +1188,7 @@ CommandCost CmdBuildSingleSignal(DoCommandFlag flags, TileIndex tile, Track trac
 
 		if (IsPbsSignal(sigtype)) {
 			/* PBS signals should show red unless they are on reserved tiles without a train. */
-			uint mask = GetPresentSignals(tile) & SignalOnTrack(track);
+			uint mask = GetSignalStates(tile) & SignalOnTrack(track);
 			SetSignalStates(tile, (GetSignalStates(tile) & ~mask) | ((HasBit(GetRailReservationTrackBits(tile), track) && EnsureNoVehicleOnGround(tile).Succeeded() ? UINT_MAX : 0) & mask));
 		}
 		MarkTileDirtyByTile(tile);
@@ -1906,13 +1906,20 @@ static void DrawSingleSignal(TileIndex tile, const RailTypeInfo *rti, Track trac
 	SignalType type       = GetSignalType(tile, track);
 	SignalVariant variant = GetSignalVariant(tile, track);
 
-	SpriteID sprite = GetCustomSignalSprite(rti, tile, type, variant, condition);
+	SignalState condition_with_pbs = IsPbsSignal(type) ? GetSignalStateByTrackdir(tile, TrackToTrackdir(track)) : condition;
+
+	SpriteID sprite = GetCustomSignalSprite(rti, tile, type, variant, condition_with_pbs);
+
 	if (sprite != 0) {
 		sprite += image;
 	} else {
-		/* Normal electric signals are stored in a different sprite block than all other signals. */
-		sprite = (type == SIGTYPE_BLOCK && variant == SIG_ELECTRIC) ? SPR_ORIGINAL_SIGNALS_BASE : SPR_SIGNALS_BASE - 16;
-		sprite += type * 16 + variant * 64 + image * 2 + condition + (type > SIGTYPE_LAST_NOPBS ? 64 : 0);
+		if (IsPbsSignal(type)) {
+			sprite = SPR_IMG_SIGNAL_PBS_WITH_YELLOW + image * 4 + condition_with_pbs + (type != SIGTYPE_PBS) * 32 + variant * 64 + (variant && side ? 64 : 0);
+		} else {
+			/* Normal electric signals are stored in a different sprite block than all other signals. */
+			sprite = (type == SIGTYPE_BLOCK && variant == SIG_ELECTRIC) ? SPR_ORIGINAL_SIGNALS_BASE : SPR_SIGNALS_BASE - 16;
+			sprite += type * 16 + variant * 64 + image * 2 + condition_with_pbs + (type > SIGTYPE_LAST_NOPBS ? 64 : 0);
+		}
 	}
 
 	AddSortableSpriteToDraw(sprite, PAL_NONE, x, y, 1, 1, BB_HEIGHT_UNDER_BRIDGE, GetSaveSlopeZ(x, y, track));
@@ -2750,6 +2757,9 @@ static TrackStatus GetTileTrackStatus_Track(TileIndex tile, TransportType mode, 
 			trackbits = GetTrackBits(tile);
 			byte a = GetPresentSignals(tile);
 			uint b = GetSignalStates(tile);
+
+			if (IsPbsSignal(GetSignalType(tile, TRACK_UPPER)) && (b & SignalOnTrack(TRACK_UPPER))) b |= SignalOnTrack(TRACK_UPPER);
+			if (IsPbsSignal(GetSignalType(tile, TRACK_LOWER)) && (b & SignalOnTrack(TRACK_LOWER))) b |= SignalOnTrack(TRACK_LOWER);
 
 			b &= a;
 

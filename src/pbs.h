@@ -14,6 +14,7 @@
 #include "direction_type.h"
 #include "track_type.h"
 #include "vehicle_type.h"
+#include "order_type.h"
 
 TrackBits GetReservedTrackbits(TileIndex t);
 
@@ -43,6 +44,7 @@ struct PBSTileInfo {
 };
 
 PBSTileInfo FollowTrainReservation(const Train *v, Vehicle **train_on_res = nullptr);
+bool IsNextTilePbs(const Train *v, TileIndex tile, Trackdir trackdir, bool forbid_90deg);
 bool IsSafeWaitingPosition(const Train *v, TileIndex tile, Trackdir trackdir, bool include_line_end, bool forbid_90deg = false);
 bool IsWaitingPositionFree(const Train *v, TileIndex tile, Trackdir trackdir, bool forbid_90deg = false);
 

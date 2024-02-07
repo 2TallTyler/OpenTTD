@@ -42,6 +42,8 @@ DECLARE_ENUM_AS_ADDABLE(SignalType)
 enum SignalState {
 	SIGNAL_STATE_RED   = 0, ///< The signal is red
 	SIGNAL_STATE_GREEN = 1, ///< The signal is green
+	SIGNAL_STATE_YELLOW = 2, ///< The signal is yellow
+	SIGNAL_STATE_DOUBLE_YELLOW = 3, ///< The signal is double yellow
 };
 
 #endif /* SIGNAL_TYPE_H */

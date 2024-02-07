@@ -162,6 +162,9 @@ static void LoadSpriteTables()
 	 */
 	LoadGrfFile(used_set->files[GFT_LOGOS].filename, 4793, PAL_DOS != used_set->palette);
 
+	/* Yellow states graphic */
+	LoadGrfFile("PBS_4_Aspects.grf", SPR_PBS_YELLOW_SIGNALS, true);
+
 	/*
 	 * Load additional sprites for climates other than temperate.
 	 * This overwrites some of the temperate sprites, such as foundations

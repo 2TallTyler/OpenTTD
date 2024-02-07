@@ -239,6 +239,24 @@ static void UpdateServiceInterval(VehicleType type, int32_t new_value)
 	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
 }
 
+static bool MaxYellowSpeedChanged(int32_t new_value)
+{
+	if (_settings_game.pf.double_yellow_speed < new_value) {
+		ShowErrorMessage(STR_CONFIG_SETTING_YELLOW_DOUBLE_YELLOW_SMALLER, INVALID_STRING_ID, WL_ERROR);
+		return false;
+	}
+	return true;
+}
+
+static bool MaxDoubleYellowSpeedChanged(int32_t new_value)
+{
+	if (_settings_game.pf.yellow_speed > new_value) {
+		ShowErrorMessage(STR_CONFIG_SETTING_YELLOW_DOUBLE_YELLOW_SMALLER, INVALID_STRING_ID, WL_ERROR);
+		return false;
+	}
+	return true;
+}
+
 static void TrainAccelerationModelChanged(int32_t)
 {
 	for (Train *t : Train::Iterate()) {

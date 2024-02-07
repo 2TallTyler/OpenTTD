@@ -2132,6 +2132,18 @@ STR_CONFIG_SETTING_AI                                           :Competitors
 STR_CONFIG_SETTING_AI_NPC                                       :Computer players
 STR_CONFIG_SETTING_NETWORK                                      :Network
 
+STR_CONFIG_SETTING_PBS_YELLOW                                   :Allow yellow path signals: {STRING2}
+STR_CONFIG_SETTING_PBS_YELLOW_HELPTEXT                          :When enabled, trains try to reserve more blocks. If there aren't enough free blocks, trains gradually slow down using yellow signal.
+STR_CONFIG_SETTING_PBS_YELLOW_SPEED                             :Maximum speed on yellow signal: {STRING2}
+STR_CONFIG_SETTING_PBS_YELLOW_SPEED_HELPTEXT                    :Maximum speed for trains after passing yellow signal
+STR_CONFIG_SETTING_PBS_DOUBLE_YELLOW_SPEED                      :Maximum speed on double yellow signal: {STRING2}
+STR_CONFIG_SETTING_PBS_DOUBLE_YELLOW_SPEED_HELPTEXT             :Maximum speed for trains after passing double yellow signal
+STR_CONFIG_SETTING_YELLOW_DOUBLE_YELLOW_SMALLER                 :{WHITE}Maximum speed on yellow signal must be smaller than maximum speed on double yellow signal, or they must be equal.
+STR_CONFIG_SETTING_PBS_WATCH_NEXT_SIGNAL                        :Allow trains to look at next signal: {STRING2}
+STR_CONFIG_SETTING_PBS_WATCH_NEXT_SIGNAL_HELPTEXT               :When enabled, trains watch, if next signal has bigger speed limit, so they can accelerate sooner.
+STR_CONFIG_SETTING_SLOW_DOWN_STATION                            :Slow down on last pbs before station: {STRING2}
+STR_CONFIG_SETTING_SLOW_DOWN_STATION_HELPTEXT                   :When entering station, make last pbs yellow. If turned off, make it green instead.
+
 STR_CONFIG_SETTING_PATHFINDER_FOR_TRAINS                        :Pathfinder for trains: {STRING2}
 STR_CONFIG_SETTING_PATHFINDER_FOR_TRAINS_HELPTEXT               :Path finder to use for trains
 STR_CONFIG_SETTING_PATHFINDER_FOR_ROAD_VEHICLES                 :Pathfinder for road vehicles: {STRING2}

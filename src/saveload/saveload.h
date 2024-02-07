@@ -375,6 +375,7 @@ enum SaveLoadVersion : uint16_t {
 
 	SLV_MAX_LOAN_FOR_COMPANY,               ///< 330  PR#11224 Separate max loan for each company.
 	SLV_DEPOT_UNBUNCHING,                   ///< 330  PR#11945 Allow unbunching shared order vehicles at a depot.
+	SLV_EXTENDED_PATH_SIGNALS,              ///< 331  PR#xxxxx Add extended path signals.
 
 	SL_MAX_VERSION,                         ///< Highest possible saveload version
 };

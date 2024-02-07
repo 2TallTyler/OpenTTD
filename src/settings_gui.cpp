@@ -2117,6 +2117,11 @@ static SettingsContainer &GetSettingsTree()
 				routing->Add(new SettingEntry("difficulty.line_reverse_mode"));
 				routing->Add(new SettingEntry("pf.reverse_at_signals"));
 				routing->Add(new SettingEntry("pf.forbid_90_deg"));
+				routing->Add(new SettingEntry("pf.yellow_pbs"));
+				routing->Add(new SettingEntry("pf.yellow_speed"));
+				routing->Add(new SettingEntry("pf.double_yellow_speed"));
+				routing->Add(new SettingEntry("pf.watch_next_signal"));
+				routing->Add(new SettingEntry("pf.slow_down_station"));
 				routing->Add(new SettingEntry("pf.pathfinder_for_roadvehs"));
 				routing->Add(new SettingEntry("pf.pathfinder_for_ships"));
 			}
