@@ -743,6 +743,13 @@ bool AfterLoadGame()
 		TimerGameEconomy::SetDate(TimerGameEconomy::date, TimerGameEconomy::date_fract);
 	}
 
+	if (IsSavegameVersionBefore(SLV_COMPANY_INAUGURATED_PERIOD)) {
+		for (Company *c : Company::Iterate()) {
+			c->inaugurated_year_calendar = 0; // TODO: Add some reasonable value here! :)
+		}
+	}
+
+
 	/*
 	 * Force the old behaviour for compatibility reasons with old savegames. As new
 	 * settings can only be loaded from new savegames loading old savegames with new
