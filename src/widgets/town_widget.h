@@ -42,6 +42,7 @@ enum TownViewWidgets : WidgetID {
 	WID_TV_CHANGE_NAME,    ///< Change the name of this town.
 	WID_TV_CATCHMENT,      ///< Toggle catchment area highlight.
 	WID_TV_EXPAND,         ///< Expand this town (scenario editor only).
+	WID_TV_ADD_HOUSES,     ///< Expand this town with houses only (scenario editor only).
 	WID_TV_DELETE,         ///< Delete this town (scenario editor only).
 };
 

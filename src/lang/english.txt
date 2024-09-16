@@ -3650,7 +3650,9 @@ STR_TOWN_VIEW_LOCAL_AUTHORITY_TOOLTIP                           :{BLACK}Show inf
 STR_TOWN_VIEW_RENAME_TOOLTIP                                    :{BLACK}Change town name
 
 STR_TOWN_VIEW_EXPAND_BUTTON                                     :{BLACK}Expand
-STR_TOWN_VIEW_EXPAND_TOOLTIP                                    :{BLACK}Increase size of town
+STR_TOWN_VIEW_EXPAND_TOOLTIP                                    :{BLACK}Increase size of town with roads and houses
+STR_TOWN_VIEW_ADD_HOUSES_BUTTON                                 :{BLACK}Add houses
+STR_TOWN_VIEW_ADD_HOUSES_TOOLTIP                                :{BLACK}Increase size of town with houses only
 STR_TOWN_VIEW_DELETE_BUTTON                                     :{BLACK}Delete
 STR_TOWN_VIEW_DELETE_TOOLTIP                                    :{BLACK}Delete this town completely
 

@@ -875,7 +875,7 @@ static void ChangeTileOwner_Town(TileIndex, Owner, Owner)
 	/* not used */
 }
 
-static bool GrowTown(Town *t);
+static bool GrowTown(Town *t, bool houses_only);
 
 /**
  * Handle the town tick for a single town, by growing the town if desired.
@@ -886,7 +886,7 @@ static void TownTickHandler(Town *t)
 	if (HasBit(t->flags, TOWN_IS_GROWING)) {
 		int i = (int)t->grow_counter - 1;
 		if (i < 0) {
-			if (GrowTown(t)) {
+			if (GrowTown(t, false)) {
 				i = t->growth_rate;
 			} else {
 				/* If growth failed wait a bit before retrying */
@@ -1489,7 +1489,7 @@ static bool TownCanGrowRoad(TileIndex tile)
  */
 static inline bool TownAllowedToBuildRoads()
 {
-	return _settings_game.economy.allow_town_roads || _generating_world || _game_mode == GM_EDITOR;
+	return _settings_game.economy.allow_town_roads || _generating_world;
 }
 
 /**
@@ -1853,9 +1853,10 @@ static RoadBits GenRandomRoadBits()
 /**
  * Grow the town.
  * @param t The town to grow
+ * @param houses_only Should we expand houses only, and not build roads?
  * @return true if we successfully grew the town with a road or house.
  */
-static bool GrowTown(Town *t)
+static bool GrowTown(Town *t, bool houses_only)
 {
 	static const TileIndexDiffC _town_coord_mod[] = {
 		{-1,  0},
@@ -1890,7 +1891,7 @@ static bool GrowTown(Town *t)
 
 	/* No road available, try to build a random road block by
 	 * clearing some land and then building a road there. */
-	if (TownAllowedToBuildRoads()) {
+	if (!houses_only) {
 		tile = t->xy;
 		for (const auto &ptr : _town_coord_mod) {
 			/* Only work with plain land that not already has a house */
@@ -2046,7 +2047,7 @@ static void DoCreateTown(Town *t, TileIndex tile, uint32_t townnameparts, TownSi
 
 	int i = x * 4;
 	do {
-		GrowTown(t);
+		GrowTown(t, false);
 	} while (--i);
 
 	t->UpdateVirtCoord();
@@ -3145,9 +3146,10 @@ CommandCost CmdTownRating(DoCommandFlag flags, TownID town_id, CompanyID company
  * @param flags Type of operation.
  * @param TownID Town ID to expand.
  * @param grow_amount Amount to grow, or 0 to grow a random size up to the current amount of houses.
+ * @param houses_only Should we expand houses only, and not build roads?
  * @return Empty cost or an error.
  */
-CommandCost CmdExpandTown(DoCommandFlag flags, TownID town_id, uint32_t grow_amount)
+CommandCost CmdExpandTown(DoCommandFlag flags, TownID town_id, uint32_t grow_amount, bool houses_only)
 {
 	if (_game_mode != GM_EDITOR && _current_company != OWNER_DEITY) return CMD_ERROR;
 	Town *t = Town::GetIfValid(town_id);
@@ -3161,13 +3163,13 @@ CommandCost CmdExpandTown(DoCommandFlag flags, TownID town_id, uint32_t grow_amo
 			UpdateTownRadius(t);
 
 			uint n = amount * 10;
-			do GrowTown(t); while (--n);
+			do GrowTown(t, houses_only); while (--n);
 
 			t->cache.num_houses -= amount;
 		} else {
 			for (; grow_amount > 0; grow_amount--) {
 				/* Try several times to grow, as we are really suppose to grow */
-				for (uint i = 0; i < 25; i++) if (GrowTown(t)) break;
+				for (uint i = 0; i < 25; i++) if (GrowTown(t, houses_only)) break;
 			}
 		}
 		UpdateTownRadius(t);
