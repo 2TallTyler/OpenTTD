@@ -91,6 +91,13 @@ enum RightClickClose : uint8_t {
 	RCC_YES_EXCEPT_STICKY,
 };
 
+/** Possible values for "place_houses" setting. */
+enum PlaceHousesSetting : uint8_t {
+	PHS_NONE = 0,
+	PHS_CONSTRUCTION,
+	PHS_COMPLETED,
+};
+
 /** Settings related to the difficulty of the game */
 struct DifficultySettings {
 	uint8_t competitor_start_time;            ///< Unused value, used to load old savegames.
@@ -529,6 +536,7 @@ struct EconomySettings {
 	TownCargoGenMode town_cargogen_mode;     ///< algorithm for generating cargo from houses, @see TownCargoGenMode
 	bool   allow_town_roads;                 ///< towns are allowed to build roads (always allowed when generating world / in SE)
 	TownFounding found_town;                 ///< town founding.
+	PlaceHousesSetting place_houses;         ///< manual house placer
 	bool   station_noise_level;              ///< build new airports when the town noise level is still within accepted limits
 	uint16_t town_noise_population[4];         ///< population to base decision on noise evaluation (@see town_council_tolerance)
 	bool   allow_town_level_crossings;       ///< towns are allowed to build level crossings
