@@ -30,6 +30,7 @@ enum Borders {
 	BORDER_SE = 1,
 	BORDER_SW = 2,
 	BORDER_NW = 3,
+	BORDERS_ALL = (1 << BORDER_NE) | (1 << BORDER_SE) | (1 << BORDER_SW) | (1 << BORDER_NW),
 	BORDERS_RANDOM = 16,
 };
 
