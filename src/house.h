@@ -95,7 +95,7 @@ struct HouseSpec {
 	TimerGameCalendar::Year min_year;         ///< introduction year of the house
 	TimerGameCalendar::Year max_year;         ///< last year it can be built
 	uint8_t population;                          ///< population (Zero on other tiles in multi tile house.)
-	uint8_t removal_cost;                        ///< cost multiplier for removing it
+	uint8_t removal_cost;                        ///< Clear cost multiplier per tile.
 	StringID building_name;                   ///< building name
 	uint16_t remove_rating_decrease;            ///< rating decrease if removed
 	uint8_t mail_generation;                     ///< mail generation multiplier (tile based, as the acceptances below)
@@ -117,11 +117,13 @@ struct HouseSpec {
 	uint8_t minimum_life;                        ///< The minimum number of years this house will survive before the town rebuilds it
 	CargoTypes watched_cargoes;               ///< Cargo types watched for acceptance.
 	std::vector<BadgeID> badges;
+	uint8_t construction_cost;                ///< Build cost multiplier per tile.
 
 	CargoLabel accepts_cargo_label[HOUSE_ORIGINAL_NUM_ACCEPTS]; ///< input landscape cargo slots
 
 	HouseID Index() const;
 	Money GetRemovalCost() const;
+	Money GetConstructionCost() const;
 
 	static std::vector<HouseSpec> &Specs();
 	static HouseSpec *Get(size_t house_id);

@@ -2469,6 +2469,7 @@ static ChangeInfoResult IgnoreTownHouseProperty(int prop, ByteReader &buf)
 		case 0x1C:
 		case 0x1D:
 		case 0x1F:
+		case 0x25:
 			buf.ReadByte();
 			break;
 
@@ -2764,6 +2765,10 @@ static ChangeInfoResult TownHouseChangeInfo(uint first, uint last, int prop, Byt
 
 			case 0x24: // Badge list
 				housespec->badges = ReadBadgeList(buf, GSF_HOUSES);
+				break;
+
+			case 0x25: // House construction cost
+				housespec->construction_cost = buf.ReadByte();
 				break;
 
 			default:

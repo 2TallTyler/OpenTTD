@@ -228,6 +228,15 @@ Money HouseSpec::GetRemovalCost() const
 	return (_price[PR_CLEAR_HOUSE] * this->removal_cost) >> 8;
 }
 
+/**
+ * Get the cost for constructing this house.
+ * @return The cost adjusted for inflation, etc.
+ */
+Money HouseSpec::GetConstructionCost() const
+{
+	return GetPrice(PR_BUILD_TOWN, this->construction_cost, this->grf_prop.grffile, 0);
+}
+
 /* Local */
 static int _grow_town_result;
 
@@ -2943,7 +2952,9 @@ CommandCost CmdPlaceHouse(DoCommandFlags flags, TileIndex tile, HouseID house, b
 		BuildTownHouse(t, tile, hs, house, Random(), house_completed, is_protected);
 	}
 
-	return CommandCost();
+	CommandCost ret;
+	ret.AddCost(hs->GetConstructionCost());
+	return ret;
 }
 
 /**
