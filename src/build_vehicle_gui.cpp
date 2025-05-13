@@ -1578,10 +1578,25 @@ struct BuildVehicleWindow : Window {
 		return list;
 	}
 
+	EngineID GetRandomVariant(EngineID selected)
+	{
+		GUIEngineList list;
+		for (const auto &item : this->eng_list) {
+			if (item.variant_id == selected) list.emplace_back(item);
+		}
+
+		return list[RandomRange(list.size())].engine_id;
+	}
+
 	void BuildVehicle()
 	{
 		EngineID sel_eng = this->sel_engine;
 		if (sel_eng == EngineID::Invalid()) return;
+
+		/* Press Ctrl to buy a random variant of the selected engine, if one exists. */
+		if (_ctrl_pressed && Engine::Get(sel_eng)->display_flags.Test(EngineDisplayFlag::HasVariants)) {
+			sel_eng = GetRandomVariant(sel_eng);
+		}
 
 		CargoType cargo = this->cargo_filter_criteria;
 		if (cargo == CargoFilterCriteria::CF_ANY || cargo == CargoFilterCriteria::CF_ENGINES || cargo == CargoFilterCriteria::CF_NONE) cargo = INVALID_CARGO;
