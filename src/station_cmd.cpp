@@ -3834,6 +3834,134 @@ static void TruncateCargo(const CargoSpec *cs, GoodsEntry *ge, uint amount = UIN
 	}
 }
 
+/** Calculations related to station ratings. */
+struct StationRating {
+	/** Generic criteria for how many station rating points are awarded for a certain measurement about the station or its cargo. */
+	struct RatingMetric {
+		int value; ///< A goal for the station to try to meet.
+		int effect; ///< The rating points awarded if the station meets the goal.
+	};
+
+public:
+	/** Container for a single part of a station rating calculation. */
+	struct StationRatingPart {
+		int score; ///< The rating score of this station.
+		int max; ///< The maximum rating score possible for this part of the station rating calculation.
+	};
+
+	/**
+	 * Calculate the effect of vehicle speed on station rating.
+	 * @param ge The GoodsEntry to check.
+	 * @return The StationRatingPart for vehicle speed.
+	 */
+	static StationRatingPart CalcVehicleSpeed(GoodsEntry *ge)
+	{
+		const uint MAX_VEHICLE_SPEED = 255; // Station ratings use a special vehicle-specific speed unit, see GoodsEntry::last_speed
+
+		int rating = 0;
+
+		int b = ge->last_speed - 85;
+		if (b >= 0) rating += b >> 2;
+
+		return {rating, MAX_VEHICLE_SPEED};
+	}
+
+	/**
+	 * Calculate the effect of wait time on station rating.
+	 * @param st The station to check.
+	 * @param ge The GoodsEntry to check.
+	 * @return The StationRatingPart for waiting time.
+	 */
+	static StationRatingPart CalcWaitTime(Station *st, GoodsEntry *ge)
+	{
+		const RatingMetric WaitTime[] = {
+			{21, 25},
+			{12, 25},
+			{6, 45},
+			{3, 35}
+		};
+
+		int rating = 0;
+		int max_effect = 0;
+		uint8_t wait_time = ge->time_since_pickup;
+		if (st->last_vehicle_type == VEH_SHIP) wait_time >>= 2;
+
+		for (RatingMetric metric : WaitTime) {
+			if (wait_time <= metric.value) rating += metric.effect;
+			max_effect += metric.effect;
+		}
+
+		return {rating, max_effect};
+	}
+
+	/**
+	 * Calculate the effect of waiting cargo on station rating.
+	 * @param st The station to check.
+	 * @param ge The GoodsEntry to check.
+	 * @return The StationRatingPart for waiting cargo.
+	 */
+	static StationRatingPart CalcWaitingCargo(Station *st, GoodsEntry *ge)
+	{
+		const RatingMetric WaitingCargo[] = {
+			{1500, 55},
+			{1000, 35},
+			{600, 10},
+			{300, 20},
+			{100, 10}
+		};
+
+		int rating = 90;
+		int max_effect = 0;
+		uint waiting_cargo = ge->max_waiting_cargo;
+
+		for (RatingMetric metric : WaitingCargo) {
+			if (waiting_cargo <= metric.value) rating += metric.effect;
+			max_effect += metric.effect;
+		}
+
+		return {rating, max_effect};
+	}
+
+	/**
+	 * Calculate the effect of vehicle age on station rating.
+	 * @param st The station to check.
+	 * @param ge The GoodsEntry to check.
+	 * @return The StationRatingPart for vehicle age.
+	 */
+	static StationRatingPart CalcVehicleAge(Station *st, GoodsEntry *ge)
+	{
+		const RatingMetric LastVehicleAge[] = {
+			{2, 10},
+			{1, 10},
+			{0, 13}
+		};
+
+		int rating = 0;
+		int max_effect = 0;
+
+		for (RatingMetric metric : LastVehicleAge) {
+			if (ge->last_age <= metric.value) rating += metric.effect;
+			max_effect += metric.effect;
+		}
+
+		return {rating, max_effect};
+	}
+
+	/**
+	 * Calculate the effect of a company statue on station rating.
+	 * @param st The station to check.
+	 * @return The StationRatingPart for a company statue.
+	 */
+	static StationRatingPart CalcStatue(Station *st)
+	{
+		const int STATUE_EFFECT = 26;
+		int rating = 0;
+		if (Company::IsValidID(st->owner) && st->town->statues.Test(st->owner)) rating += STATUE_EFFECT;
+
+		return {rating, STATUE_EFFECT};
+	}
+};
+
 /**
  * Periodic update of a station's rating.
  * @param st The station to update.
@@ -3913,30 +4041,13 @@ static void UpdateStationRating(Station *st)
 		}
 
 		if (!skip) {
-			int b = ge->last_speed - 85;
-			if (b >= 0) rating += b >> 2;
-
-			uint8_t waittime = ge->time_since_pickup;
-			if (st->last_vehicle_type == VEH_SHIP) waittime >>= 2;
-			if (waittime <= 21) rating += 25;
-			if (waittime <= 12) rating += 25;
-			if (waittime <= 6) rating += 45;
-			if (waittime <= 3) rating += 35;
-
-			rating -= 90;
-			if (ge->max_waiting_cargo <= 1500) rating += 55;
-			if (ge->max_waiting_cargo <= 1000) rating += 35;
-			if (ge->max_waiting_cargo <= 600) rating += 10;
-			if (ge->max_waiting_cargo <= 300) rating += 20;
-			if (ge->max_waiting_cargo <= 100) rating += 10;
+			rating += StationRating::CalcVehicleSpeed(ge).score;
+			rating += StationRating::CalcWaitTime(st, ge).score;
+			rating += StationRating::CalcWaitingCargo(st, ge).score;
 		}
 
-		if (Company::IsValidID(st->owner) && st->town->statues.Test(st->owner)) rating += 26;
-
-		uint8_t age = ge->last_age;
-		if (age < 3) rating += 10;
-		if (age < 2) rating += 10;
-		if (age < 1) rating += 13;
+		rating += StationRating::CalcStatue(st).score;
+		rating += StationRating::CalcVehicleAge(st, ge).score;
 
 		{
 			int or_ = ge->rating; // old rating
