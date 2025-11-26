@@ -35,12 +35,15 @@
 #include "newgrf_debug.h"
 #include "vehicle_func.h"
 #include "station_func.h"
+#include "terraform_cmd.h"
 #include "object_cmd.h"
 #include "landscape_cmd.h"
 #include "pathfinder/water_regions.h"
 
 #include "table/strings.h"
 #include "table/object_land.h"
+
+#include <unordered_set>
 
 #include "safeguards.h"
 
@@ -765,25 +768,54 @@ static void TryBuildLightHouse(Town *town)
 		if (!IsValidTile(start_tile)) return;
 	}
 
-	/* Search the perimeter. */
-	for (TileIndex coast_tile : SpiralTileSequence(start_tile, 1, radius * 2, radius * 2)) {
-		if (!IsValidTile(coast_tile)) continue;
+	/* Lambda to check neighboring tiles of where we want to build the lighthouse. */
+	auto CheckAroundLighthouse = [](TileIndex t, bool island) {
+		uint8_t coast = 0;
+		for (auto t : SpiralTileSequence(t, 3)) {
+			if (IsTileType(t, MP_WATER)) {
+				/* Don't damage any rivers. */
+				if (GetWaterClass(t) == WaterClass::River) return false;
 
-		/* We're looking for a coast tile to tell us we're near the sea. */
-		if (!IsTileType(coast_tile, MP_WATER) || GetWaterTileType(coast_tile) != WaterTileType::Coast) continue;
+				/* Count coast tiles. */
+				if (GetWaterTileType(t) == WaterTileType::Coast) coast++;
+			}
+		}
 
-		/* If we find another lighthouse, skip building one in this town entirely. */
-		for (auto t : SpiralTileSequence(coast_tile, 9)) {
+		/* If we're not building an island, we need coast on at least three neighboring tiles. */
+		return (island || coast > 2);
+	};
+
+	/* Search the perimeter and make a list of valid tiles. */
+	std::vector<TileIndex> tiles;
+
+	/* Normally we'll build on an outcropping from the coast, but there's a small chance we'll form an island. */
+	bool island = Chance16(1, 10);
+
+	for (TileIndex check_tile : SpiralTileSequence(start_tile, 1, radius * 2, radius * 2)) {
+		if (!IsValidTile(check_tile)) continue;
+
+		/* We're looking for an open sea tile, which will either become an outcropping or an island, in both cases by terraforming. */
+		if (!IsTileType(check_tile, MP_WATER) || GetWaterClass(check_tile) != WaterClass::Sea || !IsTileFlat(check_tile)) continue;
+
+		/* Look at neighboring tiles to make sure we're near a coast (unless building an island) and won't damage any rivers. */
+		if (!CheckAroundLighthouse(check_tile, island)) continue;
+
+		/* If we find another lighthouse near us, skip building one in this town entirely. */
+		for (auto t : SpiralTileSequence(check_tile, 9)) {
 			if (IsObjectTypeTile(t, OBJECT_LIGHTHOUSE)) return;
 		}
 
-		/* Find a suitable tile nearby to build. */
-		for (TileIndex build_tile : SpiralTileSequence(coast_tile, 2)) {
-			if (!IsTileType(build_tile, MP_CLEAR) || !IsTileFlat(build_tile) || IsBridgeAbove(build_tile)) continue;
-			BuildObject(OBJECT_LIGHTHOUSE, build_tile);
-			return;
-		}
+		tiles.emplace_back(check_tile);
 	}
+
+	/* If we've found any valid tiles, pick a random one. */
+	if (tiles.size() == 0) return;
+	TileIndex selected_tile = tiles[RandomRange(tiles.size())];
+
+	/* Time to terraform and build the lighthouse. */
+	Command<CMD_TERRAFORM_LAND>::Do(DoCommandFlag::Execute, selected_tile, SLOPE_ELEVATED, true);
+	BuildObject(OBJECT_LIGHTHOUSE, selected_tile);
+	return;
 }
 
 /**
