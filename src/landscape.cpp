@@ -982,7 +982,7 @@ static void CreateDesertOrRainForest(uint desert_tropic_line)
 
 		auto allows_desert = [tile, desert_tropic_line](auto &offset) {
 			TileIndex t = AddTileIndexDiffCWrap(tile, offset);
-			return t == INVALID_TILE || (TileHeight(t) < desert_tropic_line && !IsTileType(t, MP_WATER));
+			return t == INVALID_TILE || (TileHeight(t) >= desert_tropic_line && !IsTileType(t, MP_WATER));
 		};
 		if (std::all_of(std::begin(_make_desert_or_rainforest_data), std::end(_make_desert_or_rainforest_data), allows_desert)) {
 			SetTropicZone(tile, TROPICZONE_DESERT);
@@ -1595,8 +1595,7 @@ static void CalculateSnowLine()
  */
 static uint8_t CalculateDesertLine()
 {
-	/* CalculateCoverageLine() runs from top to bottom, so we need to invert the coverage. */
-	return CalculateCoverageLine(100 - _settings_game.game_creation.desert_coverage, 4);
+	return CalculateCoverageLine(_settings_game.game_creation.desert_coverage, 4);
 }
 
 bool GenerateLandscape(uint8_t mode)
