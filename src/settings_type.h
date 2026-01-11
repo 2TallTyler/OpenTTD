@@ -600,6 +600,7 @@ struct LinkGraphSettings {
 	DistributionType distribution_pax;      ///< distribution type for passengers
 	DistributionType distribution_mail;     ///< distribution type for mail
 	DistributionType distribution_armoured; ///< distribution type for armoured cargo class
+	DistributionType distribution_express; ///< distribution type for express cargo class
 	DistributionType distribution_default;  ///< distribution type for all other goods
 	uint8_t accuracy;                         ///< accuracy when calculating things on the link graph. low accuracy => low running time
 	uint8_t demand_size;                      ///< influence of supply ("station size") on the demand function
@@ -611,6 +612,7 @@ struct LinkGraphSettings {
 		if (IsCargoInClass(cargo, CargoClass::Passengers)) return this->distribution_pax;
 		if (IsCargoInClass(cargo, CargoClass::Mail)) return this->distribution_mail;
 		if (IsCargoInClass(cargo, CargoClass::Armoured)) return this->distribution_armoured;
+		if (IsCargoInClass(cargo, CargoClass::Express)) return this->distribution_express;
 		return this->distribution_default;
 	}
 };

@@ -905,6 +905,7 @@ SettingsContainer &GetSettingsTree()
 				cdist->Add(new SettingEntry("linkgraph.distribution_pax"));
 				cdist->Add(new SettingEntry("linkgraph.distribution_mail"));
 				cdist->Add(new SettingEntry("linkgraph.distribution_armoured"));
+				cdist->Add(new SettingEntry("linkgraph.distribution_express"));
 				cdist->Add(new SettingEntry("linkgraph.distribution_default"));
 				cdist->Add(new SettingEntry("linkgraph.accuracy"));
 				cdist->Add(new SettingEntry("linkgraph.demand_distance"));

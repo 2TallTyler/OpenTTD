@@ -456,6 +456,7 @@ static const IntervalTimer<TimerGameEconomy> _economy_subsidies_monthly({TimerGa
 	} else if (_settings_game.linkgraph.distribution_pax != DT_MANUAL &&
 			   _settings_game.linkgraph.distribution_mail != DT_MANUAL &&
 			   _settings_game.linkgraph.distribution_armoured != DT_MANUAL &&
+			   _settings_game.linkgraph.distribution_express != DT_MANUAL &&
 			   _settings_game.linkgraph.distribution_default != DT_MANUAL) {
 		/* Return early if there are no manually distributed cargoes and if we
 		 * don't need to invalidate the subsidies window. */

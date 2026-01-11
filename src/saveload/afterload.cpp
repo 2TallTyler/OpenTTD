@@ -785,6 +785,7 @@ bool AfterLoadGame()
 		_settings_game.linkgraph.distribution_mail = DT_MANUAL;
 		_settings_game.linkgraph.distribution_armoured = DT_MANUAL;
 		_settings_game.linkgraph.distribution_default = DT_MANUAL;
+		_settings_game.linkgraph.distribution_express = DT_MANUAL; // TODO: Add new saveload version for this.
 	}
 
 	if (IsSavegameVersionBefore(SLV_ENDING_YEAR)) {
