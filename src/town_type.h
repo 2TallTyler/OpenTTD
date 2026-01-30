@@ -77,6 +77,9 @@ static constexpr int RATING_BRIBE_UP_STEP = 200;
 static constexpr int RATING_BRIBE_MAXIMUM = 800;
 static constexpr int RATING_BRIBE_DOWN_TO = -50; // XXX SHOULD BE SOMETHING LOWER?
 
+static constexpr int RATING_SUBSIDY_UP_STEP = 200;
+static constexpr int RATING_SUBSIDY_MAXIMUM = RATING_MAXIMUM;
+
 static constexpr int RATING_WATER_RIVER_DOWN_STEP = -200; ///< removing a river tile
 static constexpr int RATING_WATER_MINIMUM = RATING_MINIMUM; ///< minimum rating after removing water features near town
 

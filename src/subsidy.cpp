@@ -520,7 +520,7 @@ bool CheckSubsidised(CargoType cargo_type, CompanyID company, Source src, const 
 
 	/* Remember all towns near this station (at least one house in its catchment radius)
 	 * which are destination of subsidised path. Do that only if needed */
-	std::vector<const Town *> towns_near;
+	std::vector<Town *> towns_near;
 	if (!st->rect.IsEmpty()) {
 		for (const Subsidy *s : Subsidy::Iterate()) {
 			/* Don't create the cache if there is no applicable subsidy with town as destination */
@@ -531,7 +531,7 @@ bool CheckSubsidised(CargoType cargo_type, CompanyID company, Source src, const 
 			BitmapTileIterator it(st->catchment_tiles);
 			for (TileIndex tile = it; tile != INVALID_TILE; tile = ++it) {
 				if (!IsTileType(tile, TileType::House)) continue;
-				const Town *t = Town::GetByTile(tile);
+				Town *t = Town::GetByTile(tile);
 				if (t->cache.part_of_subsidy.Test(PartOfSubsidy::Destination)) include(towns_near, t);
 			}
 			break;
@@ -546,20 +546,46 @@ bool CheckSubsidised(CargoType cargo_type, CompanyID company, Source src, const 
 		if (s->cargo_type == cargo_type && s->src == src && (!s->IsAwarded() || s->awarded == company)) {
 			switch (s->dst.type) {
 				case SourceType::Industry:
-					for (const auto &i : st->industries_near) {
+					for (auto &i : st->industries_near) {
 						if (s->dst.ToIndustryID() == i.industry->index) {
 							assert(i.industry->part_of_subsidy.Test(PartOfSubsidy::Destination));
 							subsidised = true;
-							if (!s->IsAwarded()) s->AwardTo(company);
+							if (!s->IsAwarded()) {
+								s->AwardTo(company);
+
+								/* Increase rating in destination town. */
+								ChangeTownRating(i.industry->town, RATING_SUBSIDY_UP_STEP, RATING_SUBSIDY_MAXIMUM, DoCommandFlag::Execute);
+
+								/* And in source town. */
+								Town *origin_town;
+								switch (s->src.type) {
+									case SourceType::Industry: origin_town = Industry::Get(src.ToIndustryID())->town; break;
+									case SourceType::Town: origin_town = Town::Get(src.ToTownID()); break;
+								}
+								ChangeTownRating(origin_town, RATING_SUBSIDY_UP_STEP, RATING_SUBSIDY_MAXIMUM, DoCommandFlag::Execute);
+							}
 						}
 					}
 					break;
 				case SourceType::Town:
-					for (const Town *tp : towns_near) {
+					for (Town *tp : towns_near) {
 						if (s->dst.ToTownID() == tp->index) {
 							assert(tp->cache.part_of_subsidy.Test(PartOfSubsidy::Destination));
 							subsidised = true;
-							if (!s->IsAwarded()) s->AwardTo(company);
+							if (!s->IsAwarded()) {
+								s->AwardTo(company);
+
+								/* Increase rating in destination town. */
+								ChangeTownRating(tp, RATING_SUBSIDY_UP_STEP, RATING_SUBSIDY_MAXIMUM, DoCommandFlag::Execute);
+
+								/* And in source town. */
+								Town *origin_town = nullptr;
+								switch (s->src.type) {
+									case SourceType::Industry: origin_town = Industry::Get(src.ToIndustryID())->town; break;
+									case SourceType::Town: origin_town = Town::Get(src.ToTownID()); break;
+								}
+								ChangeTownRating(origin_town, RATING_SUBSIDY_UP_STEP, RATING_SUBSIDY_MAXIMUM, DoCommandFlag::Execute);
+							}
 						}
 					}
 					break;
