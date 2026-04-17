@@ -1302,7 +1302,7 @@ public:
 			case WID_O_COND_VARIABLE: {
 				DropDownList list;
 				for (const auto &ocv : _order_conditional_variable) {
-					if (ocv == OrderConditionVariable::DrivingBackwards && this->vehicle->type != VEH_TRAIN) continue;
+					if (ocv == OrderConditionVariable::DrivingBackwards && (this->vehicle->type != VEH_TRAIN || _settings_game.difficulty.train_flip_reverse_allowed != TrainFlipReversingAllowed::None)) continue;
 					list.push_back(MakeDropDownListStringItem(STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE + to_underlying(ocv), to_underlying(ocv)));
 				}
 				ShowDropDownList(this, std::move(list), to_underlying(this->vehicle->GetOrder(this->OrderGetSel())->GetConditionVariable()), WID_O_COND_VARIABLE);
