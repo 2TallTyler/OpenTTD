@@ -501,10 +501,10 @@ void LoadTownData()
 		 * We want our try limit to apply in a predictable way, no matter the road layout and other geography. */
 		const int HOUSES_TO_GROW = 10;
 
-		do {
+		while (fail_limit > 0 && try_limit-- > 0 && t->cache.population < population) {
 			uint before = t->cache.num_houses;
 			Command<Commands::ExpandTown>::Post(t->index, HOUSES_TO_GROW, {TownExpandMode::Buildings, TownExpandMode::Roads});
 			if (t->cache.num_houses <= before) fail_limit--;
-		} while (fail_limit > 0 && try_limit-- > 0 && t->cache.population < population);
+		}
 	}
 }
