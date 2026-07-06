@@ -310,7 +310,7 @@ static inline void SetRoadWaypointRoadside(Tile tile, Roadside s)
 static inline bool IsRoadWaypointOnSnowOrDesert(Tile t)
 {
 	assert(IsRoadWaypointTile(t));
-	return HasBit(t.m8(), 15);
+	return HasBit(t.m7(), 5);
 }
 
 /**
@@ -320,7 +320,7 @@ static inline bool IsRoadWaypointOnSnowOrDesert(Tile t)
 static inline void ToggleRoadWaypointOnSnowOrDesert(Tile t)
 {
 	assert(IsRoadWaypointTile(t));
-	ToggleBit(t.m8(), 15);
+	ToggleBit(t.m7(), 5);
 }
 
 /**

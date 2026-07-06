@@ -1191,6 +1191,15 @@ bool AfterLoadGame()
 		}
 	}
 
+	/* Road waypoints snow/desert bit moved from m8 to m7 in SaveLoadVersion::TilePainter. */
+	if (IsSavegameVersionBefore(SaveLoadVersion::TilePainter)) {
+		for (Waypoint *wp : Waypoint::Iterate()) {
+			for (Tile tile : wp->road_waypoint_area) {
+				if (IsRoadWaypointTile(tile)) SB(tile.m7(), 5, 1, GB(tile.m8(), 15, 1));
+			}
+		}
+	}
+
 	/* Railtype moved from m3 to m8 in version SaveLoadVersion::ExtendRailtypes. */
 	if (IsSavegameVersionBefore(SaveLoadVersion::ExtendRailtypes)) {
 		for (auto t : Map::Iterate()) {
