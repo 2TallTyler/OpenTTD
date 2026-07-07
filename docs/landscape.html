@@ -130,6 +130,20 @@
   <li><span style="font-weight: bold;">m7:</span><br>
    Animation frame/state. Used for houses, industries, objects and stations.
   </li>
+  <li><span style="font-weight: bold;">m8:</span><br>
+   Tile paint. One paint per tile, except railway and clear tiles, which may have two, separated diagonally.
+   <ul>
+    <li>
+     Bits 12..15: Primary tile paint.
+    </li>
+    <li>
+     Bits 8..11: Secondary tile paint (railway and clear tiles only).
+    </li>
+    <li>
+     Bits 5..7: Orientation of secondary tile division (clear tiles only).
+    </li>
+   </ul>
+  </li>
  </ul>
 
  <p>OTTD's class-specific periodic tile processing routine is called once every +256 ticks for each tile.</p>

@@ -519,6 +519,8 @@ add_files(
     tilearea_type.h
     tilehighlight_func.h
     tilehighlight_type.h
+    tilepainter.h
+    tilepainter_map.h
     timetable.h
     timetable_cmd.cpp
     timetable_cmd.h
