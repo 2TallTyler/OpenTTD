@@ -12,6 +12,10 @@
 
 #include "tilepainter_map.h"
 #include "map_func.h"
+#include "gfx_type.h"
+#include "table/sprites.h"
+
+#include "stdafx.h"
 
 /**
  * Possible orientations for a TileType::Clear tile with two paints, split diagonally.
@@ -35,6 +39,25 @@ enum class TilePaint : uint8_t {
 
 	/* Space to add tile paints matching popular NewGRFs at a later date. */
 };
+
+/**
+ * Get the SpriteID of the flat tile matching a given TilePaint.
+ * @note The offset for the tile slope is not included and must be added later.
+ * @param paint The paint to query.
+ * @return The SpriteID of the flat tile matching the given TilePaint.
+ */
+SpriteID GetPaintedTileBase(TilePaint paint)
+{
+	switch (paint) {
+		case TilePaint::Dirt: return SPR_FLAT_BARE_LAND;
+		case TilePaint::GrassyDirt: return SPR_FLAT_1_THIRD_GRASS_TILE;
+		case TilePaint::Stone: return SPR_CONCRETE_GROUND; // TODO: This sprite lacks slopes, needs redrawing and re-defining.
+
+		case TilePaint::None:
+		default:
+			NOT_REACHED();
+	}
+}
 
 /**
  * Check if a tile has a primary paint selected.

@@ -1467,7 +1467,7 @@ static void DrawTile_TunnelBridge(TileInfo *ti)
 				DrawClearLandTile(ti, 3);
 			}
 		} else {
-			DrawGroundSprite(SPR_FLAT_SNOW_DESERT_TILE + SlopeToSpriteOffset(ti->tileh), PAL_NONE);
+			DrawPaintableGroundSprite(SPR_FLAT_SNOW_DESERT_TILE, ti->tileh, PAL_NONE);
 		}
 
 		/* draw ramp */

@@ -16,6 +16,7 @@
 #include "station_base.h"
 #include "water.h"
 #include "landscape.h"
+#include "slope_type.h"
 #include "company_base.h"
 #include "town.h"
 #include "newgrf_animation_base.h"
@@ -250,7 +251,7 @@ static void AirportDrawTileLayout(const TileInfo *ti, const DrawTileSpriteSpan &
 		if (image == SPR_FLAT_WATER_TILE && IsTileOnWater(ti->tile)) {
 			DrawWaterClassGround(ti);
 		} else {
-			DrawGroundSprite(image, GroundSpritePaletteTransform(image, pal, GetColourPalette(colour)));
+			DrawPaintableGroundSprite(image, SLOPE_FLAT, GroundSpritePaletteTransform(image, pal, GetColourPalette(colour)));
 		}
 	}
 

@@ -9,7 +9,9 @@
 
 #include "stdafx.h"
 #include "debug.h"
+#include "viewport_func.h"
 #include "landscape.h"
+#include "slope_type.h"
 #include "newgrf_badge.h"
 #include "newgrf_house.h"
 #include "newgrf_spritegroup.h"
@@ -499,7 +501,7 @@ static void DrawTileLayout(const TileInfo *ti, const DrawTileSpriteSpan &dts, ui
 	if (HasBit(pal, SPRITE_MODIFIER_CUSTOM_SPRITE)) pal += stage;
 
 	if (GB(image, 0, SPRITE_WIDTH) != 0) {
-		DrawGroundSprite(image, GroundSpritePaletteTransform(image, pal, palette));
+		DrawPaintableGroundSprite(image, SLOPE_FLAT, GroundSpritePaletteTransform(image, pal, palette));
 	}
 
 	DrawNewGRFTileSeq(ti, &dts, TransparencyOption::Houses, stage, palette);

@@ -60,7 +60,7 @@ static CommandCost ClearTile_Clear(TileIndex tile, DoCommandFlags flags)
  */
 void DrawClearLandTile(const TileInfo *ti, uint8_t density)
 {
-	DrawGroundSprite(_clear_land_sprites_grass[density] + SlopeToSpriteOffset(ti->tileh), PAL_NONE);
+	DrawPaintableGroundSprite(_clear_land_sprites_grass[density], ti->tileh, PAL_NONE);
 }
 
 /**
@@ -169,7 +169,7 @@ static void DrawTile_Clear(TileInfo *ti)
 			break;
 
 		case ClearGround::Desert:
-			DrawGroundSprite(_clear_land_sprites_snow_desert[GetClearDensity(ti->tile)] + SlopeToSpriteOffset(ti->tileh), PAL_NONE);
+			DrawPaintableGroundSprite(_clear_land_sprites_snow_desert[GetClearDensity(ti->tile)], ti->tileh, PAL_NONE);
 			break;
 
 		default:

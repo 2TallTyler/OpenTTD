@@ -63,6 +63,7 @@
 #include "stdafx.h"
 #include "core/backup_type.hpp"
 #include "landscape.h"
+#include "slope_type.h"
 #include "viewport_func.h"
 #include "station_base.h"
 #include "waypoint_base.h"
@@ -79,6 +80,8 @@
 #include "waypoint_func.h"
 #include "window_func.h"
 #include "tilehighlight_func.h"
+#include "tilepainter.h"
+#include "tilepainter_map.h"
 #include "window_gui.h"
 #include "linkgraph/linkgraph_gui.h"
 #include "viewport_kdtree.h"
@@ -579,6 +582,28 @@ void DrawGroundSpriteAt(SpriteID image, PaletteID pal, int32_t x, int32_t y, int
 void DrawGroundSprite(SpriteID image, PaletteID pal, const SubSprite *sub, int extra_offs_x, int extra_offs_y)
 {
 	DrawGroundSpriteAt(image, pal, 0, 0, 0, sub, extra_offs_x, extra_offs_y);
+}
+
+/**
+ * Draws a ground sprite for the current tile, which might be painted.
+ * If the current tile is drawn on top of a foundation the sprite is added as child sprite to the "foundation"-ParentSprite.
+ *
+ * @param image the image to draw.
+ * @param pal the provided palette.
+ * @param sub Only draw a part of the sprite.
+ * @param extra_offs_x Pixel X offset for the sprite position.
+ * @param extra_offs_y Pixel Y offset for the sprite position.
+ */
+void DrawPaintableGroundSprite(SpriteID image, Slope slope, PaletteID pal, const SubSprite *sub, int extra_offs_x, int extra_offs_y)
+{
+	SpriteID sprite = image;
+
+	/* If the tile is painted, we show that instead, unless it's snowy. Snow covers painted tiles. */
+	bool snow = image == SPR_FLAT_SNOW_DESERT_TILE && _settings_game.game_creation.landscape == LandscapeType::Arctic;
+
+	if (!snow && TileIsPainted(_cur_ti.tile)) sprite = GetPaintedTileBase(GetPrimaryTilePaint(_cur_ti.tile));
+
+	DrawGroundSprite(sprite + SlopeToSpriteOffset(slope), pal, sub, extra_offs_x, extra_offs_y);
 }
 
 /**

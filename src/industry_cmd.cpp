@@ -367,7 +367,7 @@ static void DrawTile_Industry(TileInfo *ti)
 	if (image == SPR_FLAT_WATER_TILE && IsTileOnWater(ti->tile)) {
 		DrawWaterClassGround(ti);
 	} else {
-		DrawGroundSprite(image, GroundSpritePaletteTransform(image, dits->ground.pal, GetColourPalette(ind->random_colour)));
+		DrawPaintableGroundSprite(image, SLOPE_FLAT, GroundSpritePaletteTransform(image, dits->ground.pal, GetColourPalette(ind->random_colour)));
 	}
 
 	/* If industries are transparent and invisible, do not draw the upper part */

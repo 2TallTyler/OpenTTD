@@ -9,7 +9,9 @@
 
 #include "stdafx.h"
 #include "debug.h"
+#include "viewport_func.h"
 #include "landscape.h"
+#include "slope_type.h"
 #include "newgrf_badge.h"
 #include "newgrf_industrytiles.h"
 #include "newgrf_sound.h"
@@ -173,7 +175,7 @@ static void IndustryDrawTileLayout(const TileInfo *ti, const DrawTileSpriteSpan 
 		if (image == SPR_FLAT_WATER_TILE && IsTileOnWater(ti->tile)) {
 			DrawWaterClassGround(ti);
 		} else {
-			DrawGroundSprite(image, GroundSpritePaletteTransform(image, pal, GetColourPalette(rnd_colour)));
+			DrawPaintableGroundSprite(image, SLOPE_FLAT, GroundSpritePaletteTransform(image, pal, GetColourPalette(rnd_colour)));
 		}
 	}
 
