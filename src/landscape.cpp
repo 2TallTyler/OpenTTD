@@ -27,6 +27,7 @@
 #include "water.h"
 #include "effectvehicle_func.h"
 #include "landscape_type.h"
+#include "tilepainter_cmd.cpp"
 #include "animated_tile_func.h"
 #include "core/random_func.hpp"
 #include "object_base.h"
@@ -543,6 +544,9 @@ void DoClearSquare(TileIndex tile)
 {
 	/* If the tile can have animation and we clear it, delete it from the animated tile list. */
 	if (MayAnimateTile(tile)) DeleteAnimatedTile(tile, true);
+
+	/* Remove any tile paint. */
+	ClearPaintedTile(tile);
 
 	bool remove = IsDockingTile(tile);
 	MakeClear(tile, ClearGround::Grass, _generating_world ? 3 : 0);

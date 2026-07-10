@@ -520,6 +520,9 @@ add_files(
     tilehighlight_func.h
     tilehighlight_type.h
     tilepainter.h
+    tilepainter_cmd.cpp
+    tilepainter_cmd.h
+    tilepainter_gui.cpp
     tilepainter_map.h
     timetable.h
     timetable_cmd.cpp
