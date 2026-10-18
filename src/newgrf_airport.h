@@ -59,6 +59,17 @@ struct AirportTileLayout {
 };
 
 /**
+ * Extra airport flags for NewGRF features.
+ * This is defined in the specification a 32 bit value, but most bits are not currently used.
+ */
+enum class ExtraAirportFlag : uint8_t {
+	IsWaterAirport = 0, ///< This airport is built on water.
+};
+
+/** Bitset of \c ExtraAirportFlag elements. */
+using ExtraAirportFlags = EnumBitSet<ExtraAirportFlag, uint8_t>;
+
+/**
  * Defines the data structure for an airport.
  */
 struct AirportSpec : NewGRFSpecBase<AirportClassID> {
@@ -79,6 +90,7 @@ struct AirportSpec : NewGRFSpecBase<AirportClassID> {
 	bool enabled;                          ///< Entity still available (by default true). Newgrf can disable it, though.
 	SubstituteGRFFileProps grf_prop; ///< Properties related to the grf file.
 	std::vector<BadgeID> badges;
+	ExtraAirportFlags extra_flags; ///< Extra flags for NewGRF features.
 
 	static const AirportSpec *Get(uint8_t type);
 	static AirportSpec *GetWithoutOverride(uint8_t type);

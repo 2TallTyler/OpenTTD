@@ -43,6 +43,8 @@ enum class VehicleAirFlag : uint8_t {
 	InMinimumHeightCorrection = 2, ///< The vehicle is currently raising its altitude because it hit the lower bound.
 
 	HelicopterDirectDescent = 3, ///< The helicopter is descending directly at its destination (helipad or in front of hangar)
+
+	LandedOnWater = 4, ///< The aircraft has landed on an airport marked as a water/seaplane airport.
 };
 
 /** Bitset of \c VehicleAirFlag elements. */

@@ -1141,6 +1141,10 @@ static void FloodVehicles(TileIndex tile)
 {
 	if (IsAirportTile(tile)) {
 		const Station *st = Station::GetByTile(tile);
+
+		/* Planes at a water airport don't get flooded, they're supposed to be there! */
+		if (st->airport.GetSpec()->extra_flags.Test(ExtraAirportFlag::IsWaterAirport)) return;
+
 		for (TileIndex airport_tile : st->airport) {
 			if (st->TileBelongsToAirport(airport_tile)) FloodVehiclesOnTile(airport_tile, 0);
 		}
@@ -1344,6 +1348,9 @@ void TileLoop_Water(TileIndex tile)
 
 				/* Buoys and docks cannot be flooded, and when removed turn into flooding water. */
 				if (IsTileType(dest, TileType::Station) && (IsBuoy(dest) || IsDock(dest))) continue;
+
+				/* Water airports don't get flooded. */
+				if (IsAirportTile(dest) && Station::GetByTile(dest)->airport.GetSpec()->extra_flags.Test(ExtraAirportFlag::IsWaterAirport)) continue;
 
 				/* This neighbour tile might be floodable later if the tile is cleared, so allow flooding to continue. */
 				continue_flooding = true;

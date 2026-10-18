@@ -3192,12 +3192,25 @@ StringID GetVehicleCannotUseStationReason(const Vehicle *v, const Station *st)
 			return STR_ERROR_NO_DOCK;
 
 		case VehicleType::Aircraft:
+		{
+			const Engine *e = v->GetEngine();
+
 			if (!st->facilities.Test(StationFacility::Airport)) return STR_ERROR_NO_AIRPORT;
-			if (v->GetEngine()->VehInfo<AircraftVehicleInfo>().subtype & AIR_CTOL) {
+			if (e->VehInfo<AircraftVehicleInfo>().subtype & AIR_CTOL) {
 				return STR_ERROR_AIRPORT_NO_PLANES;
 			} else {
 				return STR_ERROR_AIRPORT_NO_HELICOPTERS;
 			}
+
+			/* Check water airport compatibility. */
+			if (st->airport.GetSpec()->extra_flags.Test(ExtraAirportFlag::IsWaterAirport)) {
+				/* Water airports can only accomodate planes which can land on water. */
+				if (e->info.extra_flags.Any({ ExtraEngineFlag::CanUseWaterAirport, ExtraEngineFlag::MustUseWaterAirport })) return STR_ERROR_AIRPORT_NO_WATER;
+			} else {
+				/* Some airplanes can only land at water airports. */
+				if (e->info.extra_flags.Test(ExtraEngineFlag::MustUseWaterAirport)) return STR_ERROR_AIRPORT_NEEDS_WATER;
+			}
+		}
 
 		default:
 			return INVALID_STRING_ID;

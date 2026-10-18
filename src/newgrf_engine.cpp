@@ -751,6 +751,8 @@ static uint32_t VehicleGetVariable(Vehicle *v, const VehicleScopeResolver *objec
 
 			if (v->type == VehicleType::Ship && Ship::From(v)->flags.Test(VehicleShipFlag::SecondEndFacingForward)) SetBit(modflags, 11);
 
+			if (v->type == VehicleType::Aircraft && Aircraft::From(v)->flags.Test(VehicleAirFlag::LandedOnWater)) SetBit(modflags, 12);
+
 			if (v->vehicle_flags.Test(VehicleFlag::CargoUnloading)) SetBit(modflags, 1);
 			if (v->vehicle_flags.Test(VehicleFlag::BuiltAsPrototype)) SetBit(modflags, 10);
 

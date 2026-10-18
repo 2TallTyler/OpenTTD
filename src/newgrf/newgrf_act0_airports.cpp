@@ -221,6 +221,10 @@ static ChangeInfoResult AirportChangeInfo(uint first, uint last, int prop, ByteR
 				as->badges = ReadBadgeList(buf, GrfSpecFeature::Airports);
 				break;
 
+			case 0x13: // Extra flags
+				as->extra_flags = static_cast<ExtraAirportFlags>(buf.ReadDWord());
+				break;
+
 			default:
 				ret = ChangeInfoResult::Unknown;
 				break;

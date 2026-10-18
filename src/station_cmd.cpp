@@ -854,6 +854,27 @@ CommandCost CheckBuildableTile(TileIndex tile, DiagDirections invalid_dirs, int 
 }
 
 /**
+ * Checks if a water airport can be built at the given location.
+ * @param tile_iter Airport tile iterator.
+ * @param flags Operation to perform.
+ * @return The cost in case of success, or an error code if it failed.
+ */
+static CommandCost CheckWaterAirport(AirportTileTableIterator tile_iter, DoCommandFlags flags)
+{
+	CommandCost cost(ExpensesType::Construction);
+	int allowed_z = -1;
+
+	for (; *tile_iter != INVALID_TILE; ++tile_iter) {
+		if (!IsWaterTile(*tile_iter) || !IsTileFlat(*tile_iter)) {
+			return CommandCost(STR_ERROR_SITE_UNSUITABLE);
+		}
+	}
+
+	return cost;
+}
+
+
+/**
  * Checks if an airport can be built at the given location and clear the area.
  * @param tile_iter Airport tile iterator.
  * @param flags Operation to perform.
@@ -2650,7 +2671,12 @@ CommandCost CmdBuildAirport(DoCommandFlags flags, TileIndex tile, uint8_t airpor
 	ret = CheckStationSpread({}, airport_area);
 	if (ret.Failed()) return ret;
 
-	CommandCost cost = CheckFlatLandAirport(AirportTileTableIterator{as->layouts[layout].tiles, tile, true}, flags);
+	CommandCost cost;
+	if (as->extra_flags.Test(ExtraAirportFlag::IsWaterAirport)) {
+		cost = CheckWaterAirport(AirportTileTableIterator{as->layouts[layout].tiles, tile, true}, flags);
+	} else {
+		cost = CheckFlatLandAirport(AirportTileTableIterator{as->layouts[layout].tiles, tile, true}, flags);
+	}
 	if (cost.Failed()) return cost;
 
 	/* The noise level is the noise from the airport and reduce it to account for the distance to the town center. */

@@ -175,6 +175,8 @@ enum class ExtraEngineFlag : uint8_t {
 	SyncReliability = 3, ///< Engine reliability will be synced with variant parent.
 	HasCab          = 4, ///< Train wagon has a cab and can lead a train when backing up, without any speed reduction.
 	IsDoubleEnded   = 5, ///< Ship is double-ended, it can reverse direction without having to turn around.
+	CanUseWaterAirport = 6, ///< Aircraft can land on a seaplane airport in addition to a land runway.
+	MustUseWaterAirport = 7, ///< Airport must land on a seaplane airport, and cannot use a land runway.
 };
 
 /** Bitset of \c ExtraEngineFlag elements. */

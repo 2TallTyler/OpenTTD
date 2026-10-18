@@ -124,6 +124,7 @@ static StationID FindNearestHangar(const Aircraft *v)
 	StationID index = StationID::Invalid();
 	TileIndex vtile = TileVirtXYClampedToMap(v->x_pos, v->y_pos);
 	const AircraftVehicleInfo *avi = AircraftVehInfo(v->engine_type);
+	const Engine *e = Engine::Get(v->engine_type);
 	uint max_range = v->acache.cached_max_range_sqr;
 
 	/* Determine destinations where it's coming from and where it's heading to */
@@ -149,6 +150,15 @@ static StationID FindNearestHangar(const Aircraft *v)
 
 		/* don't crash the plane if we know it can't land at the airport */
 		if (afc->flags.Test(AirportFTAClass::Flag::ShortStrip) && (avi->subtype & AIR_FAST) && !_cheats.no_jetcrash.value) continue;
+
+		/* Check water airport compatibility. */
+		if (st->airport.GetSpec()->extra_flags.Test(ExtraAirportFlag::IsWaterAirport)) {
+			/* Water airports can only accomodate planes which can land on water. */
+			if (e->info.extra_flags.Any({ ExtraEngineFlag::CanUseWaterAirport, ExtraEngineFlag::MustUseWaterAirport })) continue;
+		} else {
+			/* Some airplanes can only land at water airports. */
+			if (e->info.extra_flags.Test(ExtraEngineFlag::MustUseWaterAirport)) continue;
+		}
 
 		/* the plane won't land at any helicopter station */
 		if (!afc->flags.Test(AirportFTAClass::Flag::Airplanes) && (avi->subtype & AIR_CTOL)) continue;
